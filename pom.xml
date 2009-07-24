@@ -1,0 +1,13 @@
+<project>
+    <parent>
+        <groupId>edu.sc.seis</groupId>
+        <artifactId>trunk</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>SeedCodec</artifactId>
+  <groupId>edu.iris.dmc</groupId>
+  <packaging>jar</packaging>
+  <version>1.0</version>
+  <name>SEED Codec</name>
+</project>

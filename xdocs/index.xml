@@ -1,0 +1,23 @@
+<document>
+  <properties>
+    <title>SeedCodec</title>
+  </properties>
+  <body>
+    <section name="Compression and Decompression">
+      <p>This is a collection of compression and decompression routines
+for standard seismic data formats in Java. The goal is to support all
+the formats available within seed, but submissions from the broader
+community are needed to accomplish this.
+         </p>
+      <p>The current supported formats are Steim1 (compression and decompression), steim2 (decompression only) and the simple float, int, double and short
+types. </p>
+       <p>A jar can be downloaded
+         <a href="/software/mavenRepository/SeedCodec/jars">here</a>. The
+         source code can be 
+<a href="/fisheye/browse/seis/trunk/SeedCodec">browsed here</a> and 
+<a href="/software/mavenRepository/SeedCodec/distributions/">downloaded here</a>.
+       </p>
+    </section>
+
+  </body>
+</document>
