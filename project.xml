@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <project>
   <pomVersion>3</pomVersion>
-  <name>SeedCodec</name>
-  <id>SeedCodec</id>
+  <name>seedCodec</name>
+  <id>seedCodec</id>
   <organization>  
     <name>The IRIS Consortium</name>
     <url>http://www.iris.edu</url>
@@ -14,12 +14,12 @@
   <shortDescription>Implementation of encodding and decodding for seismic data
     compression schems.
   </shortDescription>
-  <gumpRepositoryId>SeedCodec</gumpRepositoryId>
+  <gumpRepositoryId>seedCodec</gumpRepositoryId>
   <description> 
     Implementation of encodding and decodding for seismic data
     compression schems.
   </description>
-  <url>http://www.seis.sc.edu/software/SeedCodec</url>
+  <url>http://www.seis.sc.edu/software/seedCodec</url>
   <logo>http://www.seis.sc.edu/images/fissures_header.gif</logo>
   <siteAddress>hopalong.seis.sc.edu</siteAddress>
   <siteDirectory>/var/www/html/software/${pom.artifactId}</siteDirectory>

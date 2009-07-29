@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?><project>
   <modelVersion>4.0.0</modelVersion>
-  <groupId>SeedCodec</groupId>
-  <artifactId>SeedCodec</artifactId>
-  <name>SeedCodec</name>
+  <groupId>seedCodec</groupId>
+  <artifactId>seedCodec</artifactId>
+  <name>seedCodec</name>
   <version>1.0.6internal</version>
   <description>Implementation of encodding and decodding for seismic data
     compression schems.</description>
-  <url>http://www.seis.sc.edu/software/SeedCodec</url>
+  <url>http://www.seis.sc.edu/software/seedCodec</url>
   <ciManagement>
     <notifiers>
       <notifier>
