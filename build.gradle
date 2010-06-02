@@ -5,5 +5,37 @@ dependencies {
 
 
 group = 'edu.sc.seis'
-version = '1.0.6internal'
+version = '1.0.6'
+
+task tarDist(type: Tar, dependsOn: ['copyToLib', 'javadoc', 'wrapper', 'createBuildScript']) {
+    dirName = project.name+'-'+version
+    compression = Compression.GZIP
+    from('build/output') {
+        include('bin/**')
+        include('lib/**')
+        into dirName
+    }
+    from('build/docs') {
+        include('javadoc/**')
+        into dirName
+    }
+    from('.') {
+        include('gpl-3.0.txt')
+        include('readme.txt')
+        include('doc/**')
+        include('src/**')
+        include('gradleWrapper/**')
+        include('gradlew')
+        include('gradlew.bat')
+        exclude('**/*.svn')
+        into dirName
+    }
+    from('build') {
+        fileMode=0755
+        include('build.gradle')
+        into dirName
+    }
+}
+
+assemble.dependsOn(tarDist)
 
