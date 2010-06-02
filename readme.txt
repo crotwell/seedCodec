@@ -24,3 +24,8 @@ DecompressedData decomp = codec.decompress(compression,
                                            byte_order);
 
 
+seedCodec can be recompiled with the gradlew script, like
+./gradlew jar
+which will place a recompiled jar in the build/libs directory. See gradle.org
+for more information.
+
