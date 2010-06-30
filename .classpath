@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<classpath>
-  <classpathentry kind="src" path="src/main/java" exported="true"/>
-  <classpathentry kind="output" path="build/classes/main"/>
-  <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-  <classpathentry kind="lib" path="/home/crotwell/.gradle/cache/junit/junit/jars/junit-4.4.jar" exported="true"/>
-  <classpathentry kind="lib" path="/home/crotwell/.gradle/cache/log4jUSC/log4j/jars/log4j-1.2.15.jar" exported="true"/>
-</classpath>
