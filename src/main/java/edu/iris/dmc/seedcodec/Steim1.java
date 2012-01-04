@@ -87,6 +87,10 @@ public class Steim1 {
         if (current != numSamples) {
             throw new SteimException("Number of samples decompressed doesn't match number in header: "+current+" != "+numSamples);
         }
+        // ignore last sample check???
+        //if (end != samples[numSamples-1]) {
+        //    throw new SteimException("Last sample decompressed doesn't match value x(n) value in Steim1 record: "+samples[numSamples-1]+" != "+end);
+        //}
 		return samples;
 	}
 
