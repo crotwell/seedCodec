@@ -106,6 +106,46 @@ public class Utility  {
 		}    
 	}
 
+    /**
+     * Concatenate four bytes to a 32-bit int value.  Byte order is <b>a,b,c,d</b>
+     * unless swapBytes is true, in which case the order is <b>d,c,b,a</b>.
+     * <i>Note:</i> This method will accept unsigned and signed byte
+     * representations, since high bit extension is not a concern here.
+     * Java does not support unsigned integers, so the maximum value is not as
+     * high as would be the case with an unsigned integer.  To hold an unsigned
+     * 32-bit value, use uBytesToLong().
+     * @param a highest order byte
+     * @param b second-highest order byte
+     * @param c next order byte
+     * @param d next order byte
+     * @param e next order byte
+     * @param f next order byte
+     * @param g next order byte
+     * @param h lowest order byte
+     * @param swapBytes byte order swap flag
+     * @return 64-bit long
+     * @see edu.iris.Fissures.seed.util.Utility#uBytesToLong(byte,byte,byte,byte,boolean)
+     */
+    public static long bytesToLong(byte a,
+                                 byte b,
+                                 byte c,
+                                 byte d,
+                                 byte e,
+                                 byte f,
+                                 byte g,
+                                 byte h,
+                                 boolean swapBytes) {
+        if(swapBytes) {
+            return ((a & 0xffl)) + ((b & 0xffl) << 8) + ((c & 0xffl) << 16)
+                    + ((d & 0xffl) << 24) + ((e & 0xffl) << 32) + ((f & 0xffl) << 40) + ((g & 0xffl) << 48)
+                    + ((h & 0xffl) << 56);
+        } else {
+            return ((a & 0xffl) << 56) + ((b & 0xffl) << 48) + ((c & 0xffl) << 40)
+                    + ((d & 0xffl) << 32) + ((e & 0xffl) << 24) + ((f & 0xffl) << 16) + ((g & 0xffl) << 8)
+                    + ((h & 0xffl));
+        }
+    }
+
 
 	// convert unsigned byte representations to an integer value
 
