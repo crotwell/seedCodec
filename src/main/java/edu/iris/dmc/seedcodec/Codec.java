@@ -106,10 +106,22 @@ public class Codec implements B1000Types {
                             + numSamples + " 64 bit data points, only "
                             + b.length + " bytes.");
                 }
-                // ToDo .. implement this type....
-                throw new UnsupportedCompressionType("Type " + type
-                        + " is not supported at this time.");
-                // break;
+
+                dtemp = new double[numSamples];
+                for(int i = 0; i < numSamples; i++) {
+                    dtemp[i] = Double.longBitsToDouble(Utility.bytesToLong(b[offset],
+                                                                        b[offset + 1],
+                                                                        b[offset + 2],
+                                                                        b[offset + 3],
+                                                                        b[offset + 4],
+                                                                        b[offset + 5],
+                                                                        b[offset + 6],
+                                                                        b[offset + 7],
+                                                                       swapBytes));
+                    offset += 8;
+                }
+                out = new DecompressedData(dtemp);
+                break;
             case STEIM1:
                 // steim 1
                 itemp = Steim1.decode(b, numSamples, swapBytes, 0);
@@ -155,4 +167,55 @@ public class Codec implements B1000Types {
         throw new UnsupportedCompressionType("Type " + type
                 + " is not supported at this time.");
     }
+        
+    /** encodes the short data as a byte array. This is the inverse operation to decompress() with seed type 1 - 16 bit integers. */
+    public byte[] encodeAsBytes(short[] data) {
+        byte[] dataBytes = new byte[data.length*2];
+        for (int i = 0; i < data.length; i++) {
+            dataBytes[2 * i    ] = (byte)((data[i] & 0x0000ff00) >> 8);
+            dataBytes[2 * i + 1] = (byte)((data[i] & 0x000000ff));
+        }
+        return dataBytes;
+    }
+    
+    /** encodes the integer data as a byte array. This is the inverse operation to decompress() with seed type 3 - 32 bit integers. */
+    public byte[] encodeAsBytes(int[] data) {
+        byte[] dataBytes = new byte[data.length*4];
+        for (int i = 0; i < data.length; i++) {
+            dataBytes[4 * i] = (byte)((data[i] & 0xff000000) >> 24);
+            dataBytes[4 * i + 1] = (byte)((data[i] & 0x00ff0000) >> 16);
+            dataBytes[4 * i + 2] = (byte)((data[i] & 0x0000ff00) >> 8);
+            dataBytes[4 * i + 3] = (byte)((data[i] & 0x000000ff));
+        }
+        return dataBytes;
+    }
+
+    /** encodes the float data as a byte array. This is the inverse operation to decompress() with seed type 4 - 32 bit floats. */
+    public byte[] encodeAsBytes(float[] data) {
+        int[] tmp = new int[data.length];
+        for (int i = 0; i < data.length; i++) {
+            tmp[i] = Float.floatToIntBits(data[i]);
+        }
+        return encodeAsBytes(tmp);
+    }
+    
+    /** encodes the float data as a byte array. This is the inverse operation to decompress() with seed type 5 - 64 bit floats. */
+    public byte[] encodeAsBytes(double[] data) {
+        byte[] dataBytes = new byte[data.length*8];
+        int byteOffset = 0;
+        for (int i = 0; i < data.length; i++) {
+            long val = Double.doubleToLongBits(data[i]);
+            byteOffset = 8*i;
+            dataBytes[byteOffset    ] = (byte)((val & 0xff00000000000000l) >> 56);
+            dataBytes[byteOffset + 1] = (byte)((val & 0x00ff000000000000l) >> 48);
+            dataBytes[byteOffset + 2] = (byte)((val & 0x0000ff0000000000l) >> 40);
+            dataBytes[byteOffset + 3] = (byte)((val & 0x000000ff00000000l) >> 32);
+            dataBytes[byteOffset + 4] = (byte)((val & 0x00000000ff000000l) >> 24);
+            dataBytes[byteOffset + 5] = (byte)((val & 0x0000000000ff0000l) >> 16);
+            dataBytes[byteOffset + 6] = (byte)((val & 0x000000000000ff00l) >> 8);
+            dataBytes[byteOffset + 7] = (byte)((val & 0x00000000000000ffl));
+        }
+        return dataBytes;
+    }
+    
 }// Codec
