@@ -107,13 +107,12 @@ public class Utility  {
 	}
 
     /**
-     * Concatenate four bytes to a 32-bit int value.  Byte order is <b>a,b,c,d</b>
-     * unless swapBytes is true, in which case the order is <b>d,c,b,a</b>.
+     * Concatenate eight bytes to a 64-bit int value.  Byte order is <b>a,b,c,d,e,f,g,h</b>
+     * unless swapBytes is true, in which case the order is <b>h,g,f,e,d,c,b,a</b>.
      * <i>Note:</i> This method will accept unsigned and signed byte
      * representations, since high bit extension is not a concern here.
-     * Java does not support unsigned integers, so the maximum value is not as
-     * high as would be the case with an unsigned integer.  To hold an unsigned
-     * 32-bit value, use uBytesToLong().
+     * Java does not support unsigned long integers, so the maximum value is not as
+     * high as would be the case with an unsigned integer.  
      * @param a highest order byte
      * @param b second-highest order byte
      * @param c next order byte
