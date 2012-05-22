@@ -5,10 +5,10 @@ dependencies {
 
 
 group = 'edu.sc.seis'
-version = '1.0.7'
+version = '1.0.8-SNAPSHOT'
 
 task tarDist(type: Tar, dependsOn: ['copyToLib', 'javadoc', 'wrapper', 'createBuildScript']) {
-    dirName = project.name+'-'+version
+    def dirName = project.name+'-'+version
     compression = Compression.GZIP
     from('build/output') {
         include('bin/**')
