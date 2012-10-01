@@ -67,6 +67,27 @@ public class SteimFrameBlock {
 	public int getSteimVersion () {
 		return steimVersion;
 	}
+	
+	public SteimFrame[] getSteimFrames() {
+	    return steimFrame;
+	}
+	
+	public int numNonEmptyFrames() {
+        int i = steimFrame.length-1;
+        while(i >= 0 && steimFrame[i].isEmpty()) {
+            i--;
+        }
+        i++;
+        return i;
+	}
+	
+	public void trimEmptyFrames() {
+	    int i = numNonEmptyFrames();
+	    SteimFrame[] tmp = new SteimFrame[i];
+	    System.arraycopy(steimFrame, 0, tmp, 0, i);
+	    steimFrame = tmp;
+	    numFrames = steimFrame.length;
+	}
 
 	/**
 	 * Return the compressed byte representation of the data for inclusion
@@ -160,6 +181,10 @@ public class SteimFrameBlock {
 	private class SteimFrame {
 		public int[] word = new int[16];  // 16 32-byte words
 		public int pos = 0;  // word position in frame (pos: 0 = W0, 1 = W1, etc...)
+        public boolean isEmpty() {
+            if (word[0] == 0) {return true;
+            } else {return false;}
+        }
 	}
 
 
