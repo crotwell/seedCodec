@@ -124,7 +124,11 @@ public class Steim1 {
 	* @throws SteimException number of frames is not a positive value
 	* @throws SteimException cannot encode more than 63 frames
 	*/
-	public static SteimFrameBlock encode(int[] samples, int frames, int bias) throws SteimException {
+    public static SteimFrameBlock encode(int[] samples, int frames, int bias) throws SteimException {
+        return encode(samples, frames, bias, 0);
+    }
+    
+	public static SteimFrameBlock encode(int[] samples, int frames, int bias, int offset) throws SteimException {
 		if (samples.length == 0) {
 			throw new SteimException("samples array is zero size");
 		}
@@ -133,6 +137,12 @@ public class Steim1 {
 		}
 		if (frames > 63) {
 			throw new SteimException("cannot encode more than 63 frames, you asked for " + frames);
+		}
+		if (offset < 0) {
+		    throw new SteimException("Offset cannot be negatuve: "+offset);
+		}
+		if (offset >= samples.length) {
+		    throw new SteimException("Offset bigger than samples array: "+offset+" >= "+samples.length);
 		}
 		// all encoding will be contained within a frame block
 		// Steim encoding 1
@@ -147,11 +157,11 @@ public class Steim1 {
 		// and reverse integration constant X(N)
 		// ...reverse integration constant may need to be changed if 
 		// the frameBlock fills up.
-		frameBlock.addEncodedWord(samples[0],0,0);                // X(0) -- first sample value
+		frameBlock.addEncodedWord(samples[offset],0,0);                // X(0) -- first sample value
 		frameBlock.addEncodedWord(samples[samples.length-1],0,0); // X(N) -- last sample value
 		//
 		// now begin looping over differences
-		int sampleIndex = 0;  // where we are in the sample array
+		int sampleIndex = offset;  // where we are in the sample array
 		int[] diff = new int[4]; // store differences here
 		int diffCount = 0;  // how many sample diffs we put into current word
 		int maxSize = 0;    // the maximum diff value size encountered
@@ -166,9 +176,9 @@ public class Steim1 {
 				if (sampleIndex+i < samples.length) {
 					// as long as there are still samples
 					// get next difference  X[i] - X[i-1]
-					if (sampleIndex+i == 0) {
+					if (sampleIndex == offset && i==0) {
 						// special case for d(0) = x(0) - x(-1).
-						diff[0] = samples[0] - bias;
+						diff[0] = samples[offset] - bias;
 					} else {
 						diff[i] = samples[sampleIndex+i] - samples[sampleIndex+i-1];
 					}
@@ -239,7 +249,6 @@ public class Steim1 {
 	public static SteimFrameBlock encode(int[] samples, int frames) throws SteimException {
 		return encode(samples,frames,0);   // zero-bias version of encode
 	}
-
 
 	/**
 	 * Extracts differences from the next 64 byte frame of the given compressed
