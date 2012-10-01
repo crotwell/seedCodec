@@ -5,7 +5,7 @@ dependencies {
 
 
 group = 'edu.sc.seis'
-version = '1.0.8'
+version = '1.0.9-SNAPSHOT'
 
 task tarDist(type: Tar, dependsOn: ['copyToLib', 'javadoc', 'wrapper', 'createBuildScript']) {
     def dirName = project.name+'-'+version
