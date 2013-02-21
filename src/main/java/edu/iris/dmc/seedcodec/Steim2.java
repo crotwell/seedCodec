@@ -17,11 +17,15 @@ package edu.iris.dmc.seedcodec;
  * <dt>Coding concepts gleaned from code written by:</dt>
  * <dd>Guy Stewart, IRIS, 1991</dd>
  * <dd>Tom McSweeney, IRIS, 2000</dd>
+ * <dd>Doug Neuhauser, UC Berkeley, 2010</dd>
+ * <dd>Kevin Frechette, ISTI, 2010</dd>
  * </dl>
  *
  * @author Philip Crotwell (U South Carolina)
  * @author Robert Casey (IRIS DMC)
- * @version 10/23/2002
+ * @author Doug Neuhauser (UC Berkeley)
+ * @author Kevin Frechette (ISTI)
+ * @version 9/13/2010
  */
 
 public class Steim2 {
@@ -99,6 +103,245 @@ public class Steim2 {
 		return decode(b,numSamples,swapBytes,0);
 	}
 
+
+    /**
+     * Abbreviated zero-bias version of encode().
+     * @see edu.iris.Fissures.codec.Steim2#encode(int[],int,int)
+     */
+    public static SteimFrameBlock encode(int[] samples, int frames) throws SteimException {
+            return encode(samples,frames,0);   // zero-bias version of encode
+    }
+
+    /**
+     * Encode the array of integer values into a Steim 2 * compressed byte frame block.
+     * This algorithm will not create a byte block any greater * than 63 64-byte frames.
+     * <b>frames</b> represents the number of frames to be written.
+     * This number should be determined from the desired logical record length
+     * <i>minus</i> the data offset from the record header (modulo 64)
+     * If <b>samples</b> is exhausted before all frames are filled, the remaining frames
+     * will be nulls.
+     * <b>bias</b> is a value carried over from a previous data record, representing
+     * X(-1)...set to 0 otherwise
+     * @param samples the data points represented as signed integers
+     * @param frames the number of Steim frames to use in the encoding
+     * @param bias offset for use as a constant for the first difference, otherwise
+     * set to 0
+     * @return SteimFrameBlock containing encoded byte array
+     * @throws SteimException samples array is zero size
+     * @throws SteimException number of frames is not a positive value
+     * @throws SteimException cannot encode more than 63 frames
+     */
+     public static SteimFrameBlock encode(int[] samples, int frames, int bias) throws SteimException {
+       return encode(samples, frames, bias, samples.length);
+     }
+     
+     /**
+      * Encode the array of integer values into a Steim 2 * compressed byte frame block.
+      * This algorithm will not create a byte block any greater * than 63 64-byte frames.
+      * <b>frames</b> represents the number of frames to be written.
+      * This number should be determined from the desired logical record length
+      * <i>minus</i> the data offset from the record header (modulo 64)
+      * If <b>samples</b> is exhausted before all frames are filled, the remaining frames
+      * will be nulls.
+      * <b>bias</b> is a value carried over from a previous data record, representing
+      * X(-1)...set to 0 otherwise
+      * @param samples the data points represented as signed integers
+      * @param frames the number of Steim frames to use in the encoding
+      * @param bias offset for use as a constant for the first difference, otherwise
+      * set to 0
+      * @param samplesLength the samples length
+      * @return SteimFrameBlock containing encoded byte array
+      * @throws SteimException samples array is zero size
+      * @throws SteimException number of frames is not a positive value
+      * @throws SteimException cannot encode more than 63 frames
+      */
+      public static SteimFrameBlock encode(int[] samples, int frames, int bias, int samplesLength) throws SteimException {
+              if (samplesLength == 0) {
+                      throw new SteimException("samples array is zero size");
+              }
+              if (frames <= 0) {
+                      throw new SteimException("number of frames is not a positive value");
+              }
+              if (frames > 63) {
+                      throw new SteimException("cannot encode more than 63 frames, you asked for " + frames);
+              }
+              // all encoding will be contained within a frame block
+              // Steim encoding 2
+              SteimFrameBlock frameBlock = new SteimFrameBlock(frames,2);
+              //
+              // pass through the list of samples, and pass encoded words
+              // to frame block
+              // end loop if we run out of samples or the frame block
+              // fills up
+              // .............................................................
+              // first initialize the first frame with integration constant X(0)
+              // and reverse integration constant X(N)
+              // ...reverse integration constant may need to be changed if 
+              // the frameBlock fills up.
+              frameBlock.addEncodedWord(samples[0],0,0);                // X(0) -- first sample value
+              frameBlock.addEncodedWord(samples[samplesLength-1],0,0); // X(N) -- last sample value
+              //
+              // now begin looping over differences
+              int sampleIndex = 0;  // where we are in the sample array
+              int[] diff = new int[7]; // store differences here
+              int[] minbits = new int[7]; // store min # bits required to represent diff here
+              int points_remaining;  // the number of points remaining
+              while(sampleIndex < samplesLength) {
+                      // look at the next (up to seven) differences
+                      // and assess the number that can be put into
+                      // the upcoming word
+                      points_remaining = 0;
+                      for (int i=0; i<7; i++) {
+                              if (sampleIndex+i < samplesLength) {
+                                      // as long as there are still samples
+                                      // get next difference  X[i] - X[i-1]
+                                      if (sampleIndex+i == 0) {
+                                              // special case for d(0) = x(0) - x(-1).
+                                              diff[0] = samples[0] - bias;
+                                      } else {
+                                              diff[i] = samples[sampleIndex+i] - samples[sampleIndex+i-1];
+                                      }
+                                      // and increment the counter
+                                      minbits[i] = minBitsNeeded(diff[i]);
+                                      points_remaining++;
+                              } else {
+                                break;  // no more samples, leave for loop
+                              }
+                      } // end for (0..7)
+
+                      // Determine the packing required for the next compressed word in the SteimFrame.
+                      final int nbits = bitsForPack(minbits, points_remaining);
+                      
+                      // generate the encoded word and the nibble value
+                      final int ndiff;  // the number of differences
+                      final int bitmask;
+                      final int submask;
+                      final int nibble;
+                      switch (nbits) {
+                      case 4:
+                        ndiff = 7;
+                        bitmask = 0x0000000f;
+                        submask = 0x02;
+                        nibble = 3;
+                        break;
+                      case 5:
+                        ndiff = 6;
+                        bitmask = 0x0000001f;
+                        submask = 0x01;
+                        nibble = 3;
+                        break;
+                      case 6:
+                        ndiff = 5;
+                        bitmask = 0x0000003f;
+                        submask = 0x00;
+                        nibble = 3;
+                        break;
+                      case 8:
+                        ndiff = 4;
+                        bitmask = 0x000000ff;
+                        submask = 0;
+                        nibble = 1;
+                        break;
+                      case 10:
+                        ndiff = 3;
+                        bitmask = 0x000003ff;
+                        submask = 0x03;
+                        nibble = 2;
+                        break;
+                      case 15:
+                        ndiff = 2;
+                        bitmask = 0x00007fff;
+                        submask = 0x02;
+                        nibble = 2;
+                        break;
+                      case 30:
+                        ndiff = 1;
+                        bitmask = 0x3fffffff;
+                        submask = 0x01;
+                        nibble = 2;
+                        break;
+                      default:
+                        throw new SteimException("Unable to encode " + nbits + " bit difference in Steim2 format");
+                      }
+                      
+                      final int word = steimPackWord(diff, nbits, ndiff, bitmask, submask);
+
+                      // add the encoded word to the frame block
+                      if (frameBlock.addEncodedWord(word,ndiff,nibble)) {
+                              // frame block is full (but the value did get added) 
+                              // so modify reverse integration constant to be the very last value added
+                              // and break out of loop (read no more samples)
+                              frameBlock.setXsubN(samples[sampleIndex+ndiff-1]); // X(N)
+                              break;
+                      }
+
+                      // increment the sampleIndex by the number of differences
+                      sampleIndex += ndiff;
+              } // end while next sample
+
+              return frameBlock;
+      }
+
+      private static int minBitsNeeded(int diff) {
+              int minbits = 0;
+              if (diff >= -8 && diff < 8) minbits= 4;
+              else if (diff >= -16 && diff < 16) minbits = 5;
+              else if (diff >= -32 && diff < 32) minbits = 6;
+              else if (diff >= -128 && diff < 128) minbits = 8;
+              else if (diff >= -512 && diff < 512) minbits = 10;
+              else if (diff >= -16384 && diff < 16384) minbits = 15;
+              else if (diff >= -536870912 && diff < 536870912) minbits = 30;
+              else minbits = 32;
+              return minbits;
+      }
+
+      private static int bitsForPack(int[] minbits, int points_remaining) {
+              if (points_remaining >= 7 &&
+                      (minbits[0] <= 4) && (minbits[1] <= 4) &&
+                      (minbits[2] <= 4) && (minbits[3] <= 4) &&
+                      (minbits[4] <= 4) && (minbits[5] <= 4) &&
+                      (minbits[6] <= 4)) return 4;
+              if (points_remaining >= 6 &&
+                      (minbits[0] <= 5) && (minbits[1] <= 5) &&
+                      (minbits[2] <= 5) && (minbits[3] <= 5) &&
+                      (minbits[4] <= 5) && (minbits[5] <= 5)) return 5;
+              if (points_remaining >= 5 &&
+                      (minbits[0] <= 6) && (minbits[1] <= 6) &&
+                      (minbits[2] <= 6) && (minbits[3] <= 6) &&
+                      (minbits[4] <= 6)) return 6;
+              if (points_remaining >= 4 &&
+                      (minbits[0] <= 8) && (minbits[1] <= 8) &&
+                      (minbits[2] <= 8) && (minbits[3] <= 8)) return 8;
+              if (points_remaining >= 3 &&
+                      (minbits[0] <= 10) && (minbits[1] <= 10) &&
+                      (minbits[2] <= 10)) return 10;
+              if (points_remaining >= 2 &&
+                      (minbits[0] <= 15) && (minbits[1] <= 15)) return 15;
+              if (points_remaining >= 1 &&
+                      (minbits[0] <= 30)) return 30;
+              return 32;
+      }
+
+      /**
+       * Pack Steim2 compressed word with optional submask.
+       * @param diff the differences
+       * @param nbits the number of bits
+       * @param ndiff the number of differences
+       * @param bitmask the bit mask
+       * @param submask the sub mask or 0 if none
+       */
+      private static int steimPackWord(int[] diff, int nbits, int ndiff, int bitmask, int submask) {
+              int val = 0;
+              int i = 0;
+              for (i=0; i<ndiff; i++) {
+                      val = (val<<nbits) | (diff[i] & bitmask);
+              }
+              if (submask != 0) {
+                val |= (submask << 30);
+              }
+              return val;
+      }
+      
 	/**
 	 * Extracts differences from the next 64 byte frame of the given compressed
 	 * byte array (starting at offset) and returns those differences in an int
