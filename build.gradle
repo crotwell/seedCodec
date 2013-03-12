@@ -1,6 +1,6 @@
 
 dependencies {
-    compile "log4j:log4j:1.2.16"
+    compile "log4j:log4j:1.2.17"
 }
 
 
