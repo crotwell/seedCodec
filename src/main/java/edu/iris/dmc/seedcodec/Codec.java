@@ -22,6 +22,12 @@ public class Codec implements B1000Types {
                                        int numSamples,
                                        boolean swapBytes)
             throws CodecException, UnsupportedCompressionType {
+        // in case of record with no data points, ex detection blockette, which often have compression type
+        // set to 0, which messes up the decompresser even though it doesn't matter since there is no data.
+        if (numSamples == 0) {
+            return new DecompressedData(new int[0]);
+        }
+        
         DecompressedData out;
         int[] itemp;
         short[] stemp;
