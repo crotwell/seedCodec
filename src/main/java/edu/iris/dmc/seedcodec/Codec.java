@@ -13,6 +13,24 @@ public class Codec implements B1000Types {
 
     public Codec() {}
 
+    public boolean isDecompressable(int type) {
+        switch(type){
+            case SHORT:
+            case DWWSSN:
+            case INT24:
+            case INTEGER:
+            case FLOAT:
+            case DOUBLE:
+            case STEIM1:
+            case STEIM2:
+            case CDSN:
+            case SRO:
+                return true;
+            default:
+                return false;
+        }
+    }
+    
     /**
      * Decompresses the data into the best java primitive type for the given
      * compression and returns it.
@@ -52,7 +70,7 @@ public class Codec implements B1000Types {
                 }
                 out = new DecompressedData(stemp);
                 break;
-            case 2:
+            case INT24:
                 // 24 bit values
                 if(b.length < 3 * numSamples) {
                     throw new CodecException("Not enough bytes for "
@@ -69,7 +87,7 @@ public class Codec implements B1000Types {
                 }
                 out = new DecompressedData(itemp);
                 break;
-            case 3:
+            case INTEGER:
                 // 32 bit integers
                 if(b.length < 4 * numSamples) {
                     throw new CodecException("Not enough bytes for "
@@ -87,7 +105,7 @@ public class Codec implements B1000Types {
                 }
                 out = new DecompressedData(itemp);
                 break;
-            case 4:
+            case FLOAT:
                 // 32 bit floats
                 if(b.length < 4 * numSamples) {
                     throw new CodecException("Not enough bytes for "
@@ -105,7 +123,7 @@ public class Codec implements B1000Types {
                 }
                 out = new DecompressedData(ftemp);
                 break;
-            case 5:
+            case DOUBLE:
                 // 64 bit doubles
                 if(b.length < 8 * numSamples) {
                     throw new CodecException("Not enough bytes for "
