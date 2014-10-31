@@ -290,7 +290,8 @@ public class Steim1 {
 				case 0:
 					//System.out.println("0 means header info");
 					// only include header info if offset is 0
-					if (offset == 0) {
+				    // headers can only occur in the second and third 4-byte chunk, so ignore after that
+					if (offset == 0 && i<3) {
 						temp[currNum++] = Utility.bytesToInt(bytes[offset+(i*4)], 
 								bytes[offset+(i*4)+1],
 								bytes[offset+(i*4)+2],
