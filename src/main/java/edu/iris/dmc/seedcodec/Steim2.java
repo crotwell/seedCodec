@@ -6,7 +6,7 @@ package edu.iris.dmc.seedcodec;
  *  Class for decoding or encoding Steim2-compressed data blocks
  *  to or from an array of integer values.
  * <p>
- * Steim compression scheme Copyrighted by Dr. Joseph Steim.<p>
+ * Steim compression scheme Copyrighted by Dr. Joseph Steim.</p>
  * <dl>
  * <dt>Reference material found in:</dt>
  * <dd>
@@ -96,7 +96,7 @@ public class Steim2 {
 	/**
 	 * Abbreviated, zero-bias version of decode().
 	 *
-	 * @see edu.iris.Fissures.codec.Steim2#decode(byte[],int,boolean,int)
+	 * see edu.iris.Fissures.codec.Steim2#decode(byte[],int,boolean,int)
 	 */
 	public static int[] decode(byte[] b, int numSamples, boolean swapBytes) throws SteimException {
 		// zero-bias version of decode
@@ -106,7 +106,7 @@ public class Steim2 {
 
     /**
      * Abbreviated zero-bias version of encode().
-     * @see edu.iris.Fissures.codec.Steim2#encode(int[],int,int)
+     * see edu.iris.Fissures.codec.Steim2#encode(int[],int,int)
      */
     public static SteimFrameBlock encode(int[] samples, int frames) throws SteimException {
             return encode(samples,frames,0);   // zero-bias version of encode

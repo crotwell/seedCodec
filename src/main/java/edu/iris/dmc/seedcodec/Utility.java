@@ -90,7 +90,7 @@ public class Utility  {
 	 * @param d lowest order byte
 	 * @param swapBytes byte order swap flag
 	 * @return 32-bit integer
-	 * @see edu.iris.Fissures.seed.util.Utility#uBytesToLong(byte,byte,byte,byte,boolean)
+	 * see edu.iris.Fissures.seed.util.Utility#uBytesToLong(byte,byte,byte,byte,boolean)
 	 */
 	public static int bytesToInt(byte a, byte b, byte c, byte d, boolean swapBytes) {
 		if (swapBytes) {
@@ -123,7 +123,7 @@ public class Utility  {
      * @param h lowest order byte
      * @param swapBytes byte order swap flag
      * @return 64-bit long
-     * @see edu.iris.Fissures.seed.util.Utility#uBytesToLong(byte,byte,byte,byte,boolean)
+     * see edu.iris.Fissures.seed.util.Utility#uBytesToLong(byte,byte,byte,byte,boolean)
      */
     public static long bytesToLong(byte a,
                                  byte b,

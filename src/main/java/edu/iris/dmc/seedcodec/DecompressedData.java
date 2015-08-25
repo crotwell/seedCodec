@@ -29,8 +29,8 @@ public class DecompressedData implements B1000Types {
     /** returns an integer that represent the java primitive that the data
      *  decompresses to. This is to allow for SEED types 4 and 5, float and
      *  double, which cannot be represented as int without a loss of precision.
-     *  @see B1000Types.java for the values.
-     *  @see http://www.fdsn.org for the seed manual, blockette 1000, that defines these values.
+     *  <p>see B1000Types.java for the values.</p>
+     *  <p>see http://www.fdsn.org for the seed manual, blockette 1000, that defines these values.</p>
      */
     public int getType() {
         if (iData != null) {
