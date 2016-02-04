@@ -31,4 +31,19 @@ public class Steim2Test {
         int[] out = Steim2.decode(sfb.getEncodedData(), data.length, false);
         assertArrayEquals(data, out);
     }
+    
+
+    @Test
+    public void testRoundTripTwo() throws SteimException, IOException {
+
+        int[] data = new int[512];
+        // make some fake data, use sqrt so more data will be "small"
+        for (int i = 0; i < data.length; i++) {
+            data[i] = (int)(Math.round(Math.sqrt(Math.random())*2000)) * (Math.random() > 0.5? 1 : -1);
+        }
+        SteimFrameBlock sfb = Steim2.encode(data, 63);
+        assertEquals("num encoded",  data.length, sfb.getNumSamples());
+        int[] out = Steim2.decode(sfb.getEncodedData(), data.length, false);
+        assertArrayEquals(data, out);
+    }
 }
