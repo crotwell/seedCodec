@@ -2,9 +2,60 @@
 dependencies {
 }
 
+apply plugin: 'maven'
+apply plugin: 'signing'
 
 group = 'edu.sc.seis'
 version = '1.0.11'
+
+signing {
+    sign configurations.archives
+}
+
+uploadArchives {
+  repositories {
+    mavenDeployer {
+      beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+      repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+        authentication(userName: ossrhUsername, password: ossrhPassword)
+      }
+
+      snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+        authentication(userName: ossrhUsername, password: ossrhPassword)
+      }
+
+      pom.project {
+        name 'SeedCodec'
+        packaging 'jar'
+        // optionally artifactId can be defined here 
+        description 'A collection of compression and decompression routines for standard seismic data formats in Java.'
+        url 'http://www.seis.sc.edu/seedCodec.html'
+
+        scm {
+          connection 'scm:git:https://github.com/crotwell/seedCodec.git'
+          developerConnection 'scm:git:https://github.com/crotwell/seedCodec.git'
+          url 'https://github.com/crotwell/seedCodec'
+        }
+
+        licenses {
+          license {
+            name 'The GNU General Public License, Version 3'
+            url 'http://www.gnu.org/licenses/gpl-3.0.html'
+          }
+        }
+
+        developers {
+          developer {
+            id 'crotwell'
+            name 'Philip Crotwell'
+            email 'crotwell@seis.sc.edu'
+          }
+        }
+      }
+    }
+  }
+}
 
 task tarDist(type: Tar, dependsOn: ['copyToLib', 'javadoc', 'wrapper', 'createBuildScript']) {
     def dirName = project.name+'-'+version
