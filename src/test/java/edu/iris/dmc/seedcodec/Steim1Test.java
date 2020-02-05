@@ -1,10 +1,9 @@
 package edu.iris.dmc.seedcodec;
 
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.IOException;
-
-import org.junit.Test;
 
 
 public class Steim1Test {
@@ -14,9 +13,9 @@ public class Steim1Test {
         int[] data = new int[52]; // one word for nibbles, one for first sample, one for last sample, all differences stored so redundant info means max 52 samples in first block
         Steim1 steim1 = new Steim1();
         SteimFrameBlock sfb = Steim1.encode(data, 1);
-        assertEquals("num samples", data.length, sfb.getNumSamples());
+        assertEquals(data.length, sfb.getNumSamples(), "num samples");
     }
-    
+
     @Test
     public void testRoundTrip() throws SteimException, IOException {
         int i=0;
@@ -31,14 +30,14 @@ public class Steim1Test {
             } else {
                 diff = j;
             }
-            i += ( j % 2 ) * -1 * diff; 
+            i += ( j % 2 ) * -1 * diff;
         }
         SteimFrameBlock sfb = Steim1.encode(data, 5);
-        assertEquals("num encoded",  data.length, sfb.getNumSamples());
+        assertEquals(data.length, sfb.getNumSamples(), "num encoded");
         int[] out = Steim1.decode(sfb.getEncodedData(), data.length, false);
         assertArrayEquals(data, out);
     }
-    
+
     @Test
     public void testRoundTripOffset() throws SteimException, IOException {
         int i=0;
@@ -55,7 +54,7 @@ public class Steim1Test {
             } else {
                 diff = j;
             }
-            i += ( j % 2 ) * -1 * diff; 
+            i += ( j % 2 ) * -1 * diff;
             offsetData[j] = i;
         }
         for (int j = 0; j < data.length; j++) {
@@ -67,12 +66,12 @@ public class Steim1Test {
             } else {
                 diff = j;
             }
-            i += ( j % 2 ) * -1 * diff; 
+            i += ( j % 2 ) * -1 * diff;
             data[j] = i;
         }
         System.arraycopy(data, 0, offsetData, offset, data.length);
         SteimFrameBlock sfb = Steim1.encode(offsetData, 5, 0, offset);
-        assertEquals("num encoded",  data.length, sfb.getNumSamples());
+        assertEquals(data.length, sfb.getNumSamples(), "num encoded");
         int[] out = Steim1.decode(sfb.getEncodedData(), data.length, false);
         assertArrayEquals(data, out);
     }
