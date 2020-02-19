@@ -1,4 +1,5 @@
 plugins {
+    id("edu.sc.seis.version-class") version "1.1.1"
     // Apply the java-library plugin to add support for Java Library
     `java-library`
     eclipse
