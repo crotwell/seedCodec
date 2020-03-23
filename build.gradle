@@ -1,12 +1,16 @@
 
 plugins {
   id "edu.sc.seis.version-class" version "1.1.1"
+  
 }
 
 dependencies {
+    testImplementation 'junit:junit:4.12'
 }
 
-apply plugin: 'maven'
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'project-report'
 apply plugin: 'maven-publish'
 apply plugin: 'signing'
 
@@ -15,6 +19,9 @@ version = '1.0.12-SNAPSHOT'
 
 signing {
     sign configurations.archives
+}
+test {
+    useJUnit()
 }
 publishing {
     publications {
@@ -39,7 +46,7 @@ uploadArchives {
       pom.project {
         name 'SeedCodec'
         packaging 'jar'
-        // optionally artifactId can be defined here 
+        // optionally artifactId can be defined here
         description 'A collection of compression and decompression routines for standard seismic data formats in Java.'
         url 'http://www.seis.sc.edu/seedCodec.html'
 
@@ -99,4 +106,3 @@ task tarDist(type: Tar, dependsOn: ['copyToLib', 'javadoc', 'mywrapper', 'create
 }
 
 assemble.dependsOn(tarDist)
-
