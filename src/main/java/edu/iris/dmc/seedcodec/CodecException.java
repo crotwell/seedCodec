@@ -20,5 +20,11 @@ public class CodecException extends Exception {
     public CodecException(String reason) {
 	super(reason);
     }
-    
+
+    public CodecException(String reason, Exception e) {
+	super(reason, e);
+    }
+    public CodecException( Exception e) {
+	super(e);
+    }
 }// CodecException
