@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "edu.sc.seis"
-version = "1.0.12-SNAPSHOT"
+version = "1.1.0-SNAPSHOT"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8
