@@ -5,4 +5,18 @@ SeedCodec is a collection of compression and decompression routines for standard
 The current supported formats are Steim1, Steim2 (compression and decompression), and decompression only for DWSSN, CDSN, SRO and the simple float, int, double, short and 24 bit types. These are only the decompression routines, and are independent of a particular file type. In particular, other than focusing on the data compression algorithms defined as defined in SEED, there is no direct connection to with SEED or miniSEED.
 The [SeisFile](/crotwell/seisFile) project has code for dealing with actual miniseed files.
 
+
+To Decompress use the Codec.decompress method. For example:
+```
+Codec codec = new Codec();
+int compression = Codec.STEIM1;
+byte[] values = ...
+int num_points = ...
+boolean byte_order = false;
+DecompressedData decomp = codec.decompress(compression,
+                                           values,
+                                           num_points,
+                                           byte_order);
+```
+
 More information can be found at http://www.seis.sc.edu/seedCodec.html
