@@ -22,7 +22,7 @@ publishing {
         create<MavenPublication>("mavenJava") {
             from(components["java"])
             pom {
-              name.set("seisFile")
+              name.set("seedCodec")
               description.set("A collection of compression and decompression routines for standard seismic data formats in Java.")
               url.set("http://www.seis.sc.edu/seedCodec.html")
 
