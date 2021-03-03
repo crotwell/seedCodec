@@ -1,5 +1,5 @@
 plugins {
-    id("edu.sc.seis.version-class") version "1.1.1"
+    id("edu.sc.seis.version-class") version "1.2.0"
     // Apply the java-library plugin to add support for Java Library
     "java-library"
     `maven-publish`
@@ -71,9 +71,7 @@ signing {
 }
 
 repositories {
-    // Use jcenter for resolving dependencies.
-    // You can declare any Maven/Ivy/file repository here.
-    jcenter()
+    mavenCentral()
 }
 
 dependencies {
