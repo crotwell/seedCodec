@@ -13,6 +13,13 @@ public class Codec implements B1000Types {
 
     public Codec() {}
 
+    /**
+     * Is the encoding type decompressable. If this class is overridden to add new types, this
+     * method should be overridden to account for the new type.
+     * 
+     * @param type Encoding type, usually from a Blockette1000
+     * @return true if decompressable, false otherwise
+     */
     public boolean isDecompressable(int type) {
         switch(type){
             case SHORT:
