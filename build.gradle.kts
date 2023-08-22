@@ -1,10 +1,11 @@
 plugins {
-    id("edu.sc.seis.version-class") version "1.2.0"
+    id("edu.sc.seis.version-class") version "1.2.2"
     // Apply the java-library plugin to add support for Java Library
     "java-library"
     `maven-publish`
     signing
     eclipse
+    id("com.github.ben-manes.versions") version "0.47.0"
 }
 
 group = "edu.sc.seis"
@@ -77,10 +78,10 @@ repositories {
 dependencies {
 
     // Use JUnit Jupiter API for testing.
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.1")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.0")
 
     // Use JUnit Jupiter Engine for testing.
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.1")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.0")
 }
 
 tasks {
