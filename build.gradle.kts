@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "edu.sc.seis"
-version = "1.1.1"
+version = "1.1.2-SNAPSHOT"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8
