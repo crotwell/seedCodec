@@ -1,7 +1,7 @@
 plugins {
     id("edu.sc.seis.version-class") version "1.2.2"
     // Apply the java-library plugin to add support for Java Library
-    "java-library"
+    `java-library`
     `maven-publish`
     signing
     eclipse
@@ -53,7 +53,7 @@ publishing {
     repositories {
       maven {
         name = "TestDeploy"
-        url = uri("$buildDir/repos/test-deploy")
+          url = uri(layout.buildDirectory.dir("repos/test-deploy"))
       }
       maven {
           val releaseRepo = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
@@ -78,18 +78,19 @@ repositories {
 dependencies {
 
     // Use JUnit Jupiter API for testing.
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.0")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.2")
 
     // Use JUnit Jupiter Engine for testing.
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.0")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.2")
 }
 
 tasks {
     jar {
         manifest {
             attributes(
-                mapOf("Implementation-Title" to project.name,
-                      "Implementation-Version" to project.version)
+                mapOf("Automatic-Module-Name" to "edu.sc.seis.seedCodec",
+                    "Implementation-Title" to project.name,
+                    "Implementation-Version" to project.version)
             )
         }
     }
