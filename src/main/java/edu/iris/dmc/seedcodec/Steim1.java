@@ -107,8 +107,9 @@ public class Steim1 {
 
 	/**
 	* Encode the array of integer values into a Steim 1 * compressed byte frame block.
-	* This algorithm will not create a byte block any greater * than 63 64-byte frames.
-	* <b>frames</b> represents the number of frames to be written.
+	* For miniseed2 you should not create a byte block any greater than 63 64-byte frames.
+	 * maxFrames=0 implies unlimited number of frames, usually for miniseed3.
+	* <b>maxFrames</b> represents the number of frames to be written.
 	* This number should be determined from the desired logical record length
 	* <i>minus</i> the data offset from the record header (modulo 64)
 	* If <b>samples</b> is exhausted before all frames are filled, the remaining frames
@@ -121,8 +122,7 @@ public class Steim1 {
 	* set to 0
 	* @return SteimFrameBlock containing encoded byte array
 	* @throws SteimException samples array is zero size
-	* @throws SteimException number of frames is not a positive value
-	* @throws SteimException cannot encode more than 63 frames
+	* @throws SteimException number of frames is a negative value
 	*/
     public static SteimFrameBlock encode(int[] samples, int frames, int bias) throws SteimException {
         return encode(samples, frames, bias, 0);
@@ -132,11 +132,8 @@ public class Steim1 {
 		if (samples.length == 0) {
 			throw new SteimException("samples array is zero size");
 		}
-		if (frames <= 0) {
-			throw new SteimException("number of frames is not a positive value");
-		}
-		if (frames > 63) {
-			throw new SteimException("cannot encode more than 63 frames, you asked for " + frames);
+		if (frames < 0) {
+			throw new SteimException("number of frames is a negative value");
 		}
 		if (offset < 0) {
 		    throw new SteimException("Offset cannot be negatuve: "+offset);
@@ -274,7 +271,6 @@ public class Steim1 {
 		int currNibble = 0;
 		int[] temp = new int[64];  // 4 samples * 16 longwords, can't be more
 		int currNum = 0;
-		//System.err.print ("DEBUG: ");
 		for (int i=0; i<16; i++) {   // i is the word number of the frame starting at 0
 			//currNibble = (nibbles >>> (30 - i*2 ) ) & 0x03; // count from top to bottom each nibble in W(0)
 			currNibble = (nibbles >> (30 - i*2) ) & 0x03; // count from top to bottom each nibble in W(0)
@@ -331,51 +327,5 @@ public class Steim1 {
 		int[] out = new int[currNum];
 		System.arraycopy(temp, 0, out, 0, currNum);  // trim array to number of values
 		return out;
-	}
-
-	/**
-	 * Static method for testing the decode() method.
-	 * @param args not used
-	 * @throws SteimException from called method(s)
-	*/
-	public static void main(String[] args) throws SteimException {
-
-		byte[] b = new byte[64];
-		int[] temp;
-
-		for (int i=0; i< 64 ; i++) {
-			b[i] = 0x00;
-		}
-		b[0] = 0x01;
-		b[1] = (byte)0xb0;
-		System.out.println(b[1]);
-		b[2] = (byte)0xff;
-		b[3] = (byte)0xff;
-
-		b[4] = 0;
-		b[5] = 0;
-		b[6] = 0;
-		b[7] = 0;
-
-		b[8] = 0;
-		b[9] = 0;
-		b[10] = 0;
-		b[11] = 0;
-
-		b[12] = 1;
-		b[13] = 2;
-		b[14] = 3;
-		b[15] = 0;
-
-		b[16] = 1;
-		b[17] = 1;
-		b[18] = 0;
-		b[19] = 0;
-
-		b[20] = 0;
-		b[21] = 1;
-		b[22] = 0;
-		b[23] = 0;
-		temp = Steim1.decode(b, 17, false);
 	}
 }

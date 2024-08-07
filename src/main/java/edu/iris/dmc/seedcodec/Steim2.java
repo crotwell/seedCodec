@@ -137,7 +137,7 @@ public class Steim2 {
      
      /**
       * Encode the array of integer values into a Steim 2 * compressed byte frame block.
-      * This algorithm will not create a byte block any greater * than 63 64-byte frames.
+      * For miniseed2 you should not create a byte block any greater than 63 64-byte frames.
       * <b>frames</b> represents the number of frames to be written.
       * This number should be determined from the desired logical record length
       * <i>minus</i> the data offset from the record header (modulo 64)
@@ -159,11 +159,8 @@ public class Steim2 {
               if (samplesLength == 0) {
                       throw new SteimException("samples array is zero size");
               }
-              if (frames <= 0) {
-                      throw new SteimException("number of frames is not a positive value");
-              }
-              if (frames > 63) {
-                      throw new SteimException("cannot encode more than 63 frames, you asked for " + frames);
+              if (frames < 0) {
+                      throw new SteimException("number of frames is  a negative value");
               }
               // all encoding will be contained within a frame block
               // Steim encoding 2
@@ -461,51 +458,6 @@ public class Steim2 {
 		int[] out = new int[currNum];
 		System.arraycopy(temp, 0, out, 0, currNum);
 		return out;
-	}
-
-	/**
-	 * Static method for testing the decode() method.
-	 * @param args not used
-	 * @throws SteimException from called method(s)
-	 */
-	public static void main(String[] args) throws SteimException {
-		byte[] b = new byte[64];
-		int[] temp;
-
-		for (int i=0; i< 64 ; i++) {
-			b[i] = 0x00;
-		}
-		b[0] = 0x01;
-		b[1] = (byte)0xb0;
-		System.out.println(b[1]);
-		b[2] = (byte)0xff;
-		b[3] = (byte)0xff;
-
-		b[4] = 0;
-		b[5] = 0;
-		b[6] = 0;
-		b[7] = 0;
-
-		b[8] = 0;
-		b[9] = 0;
-		b[10] = 0;
-		b[11] = 0;
-
-		b[12] = 1;
-		b[13] = 2;
-		b[14] = 3;
-		b[15] = 0;
-
-		b[16] = 1;
-		b[17] = 1;
-		b[18] = 0;
-		b[19] = 0;
-
-		b[20] = 0;
-		b[21] = 1;
-		b[22] = 0;
-		b[23] = 0;
-		temp = Steim2.decode(b, 17, false);
 	}
 
 }

@@ -24,7 +24,8 @@ public class Steim2Test {
             } else {
                 diff = j;
             }
-            i += ( j % 2 ) * -1 * diff;
+            if (j%2 == 0) {diff *= -1;}
+            i += diff;
         }
         SteimFrameBlock sfb = Steim2.encode(data, 5);
         assertEquals(data.length, sfb.getNumSamples(), "num encoded");
@@ -43,6 +44,31 @@ public class Steim2Test {
         }
         SteimFrameBlock sfb = Steim2.encode(data, 63);
         assertEquals(data.length, sfb.getNumSamples(), "num encoded");
+        int[] out = Steim2.decode(sfb.getEncodedData(), data.length, false);
+        assertArrayEquals(data, out);
+    }
+
+
+    @Test
+    public void testBigRoundTrip() throws SteimException, IOException {
+        int i=0;
+        int[] data = new int[10000];
+        for (int j = 0; j < data.length; j++) {
+            data[j] = i;
+            int diff = 0;
+            if (j%50 == 0) {
+                diff = 33000; // make sure bigger than 2 bytes
+            } else if (j % 10 == 0) {
+                diff = 150; // bigger than one byte
+            } else {
+                diff = j;
+            }
+            if (j%2 == 0) {diff *= -1;}
+            i += diff;
+        }
+        SteimFrameBlock sfb = Steim2.encode(data, 0);
+        assertEquals(data.length, sfb.getNumSamples(), "num encoded");
+        assertTrue(sfb.getNumFrames()> 63, sfb.getNumFrames()+" <= 63");
         int[] out = Steim2.decode(sfb.getEncodedData(), data.length, false);
         assertArrayEquals(data, out);
     }

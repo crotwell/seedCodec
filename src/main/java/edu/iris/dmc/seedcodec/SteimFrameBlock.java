@@ -3,6 +3,8 @@ package edu.iris.dmc.seedcodec;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class acts as a container to hold encoded bytes processed
@@ -30,23 +32,13 @@ public class SteimFrameBlock {
 	 * compression used (1 and 2 currently)
 	 * the number of frames remains static...frames that are
 	 * not filled with data are simply full of nulls.
-	 * @param numFrames the number of frames in this Steim record
+	 * @param maxNumFrames the max number of frames in this Steim record, zero for unlimited
 	 * @param steimVersion which version of Steim compression is being used
 	 * (1,2,3).
 	 */
-	public SteimFrameBlock (int numFrames, int steimVersion) {
-		steimFrame = new SteimFrame[numFrames]; // array of frames
-		for (int i = 0; i < steimFrame.length; i++) {
-			// initialize the SteimFrame array
-			steimFrame[i] = new SteimFrame();
-		}
-		this.numFrames = numFrames;
+	public SteimFrameBlock (int maxNumFrames, int steimVersion) {
+		this.maxNumFrames = maxNumFrames;
 		this.steimVersion = steimVersion;
-
-		// initialize the first frame properly
-		currentFrame = 0;            // sanity
-		addEncodingNibble(0); // first nibble always 00
-		this.steimFrame[currentFrame].pos++;  // increment position in frame to W1
 	}
 
 
@@ -69,24 +61,24 @@ public class SteimFrameBlock {
 	}
 	
 	public SteimFrame[] getSteimFrames() {
-	    return steimFrame;
+	    return steimFrameList.toArray(new SteimFrame[0]);
 	}
-	
+
+	/**
+	 * Now list based, so no longer useful.
+	 * @return
+	 */
+	@Deprecated
 	public int numNonEmptyFrames() {
-        int i = steimFrame.length-1;
-        while(i >= 0 && steimFrame[i].isEmpty()) {
-            i--;
-        }
-        i++;
-        return i;
+		return steimFrameList.size();
 	}
-	
+
+	/**
+	 * Now list based, so trim not needed. NoOp.
+	 */
+	@Deprecated
 	public void trimEmptyFrames() {
-	    int i = numNonEmptyFrames();
-	    SteimFrame[] tmp = new SteimFrame[i];
-	    System.arraycopy(steimFrame, 0, tmp, 0, i);
-	    steimFrame = tmp;
-	    numFrames = steimFrame.length;
+
 	}
 
 	/**
@@ -98,14 +90,14 @@ public class SteimFrameBlock {
 	public byte[] getEncodedData () throws IOException {
 		// set up a byte array to write int words to
 		ByteArrayOutputStream encodedData = 
-			new ByteArrayOutputStream(numFrames * 64);
+			new ByteArrayOutputStream(getNumFrames() * 64);
 		// set up interface to the array for writing the ints
 		DataOutputStream intSerializer = 
 			new DataOutputStream(encodedData);
-		for (int i = 0; i < numFrames; i++) {  // for each frame
+		for (SteimFrame frame : steimFrameList) {// for each frame
 			for (int j = 0; j < 16; j++) {     // for each word
 				// write integer to byte stream
-				intSerializer.writeInt(steimFrame[i].word[j]);	
+				intSerializer.writeInt(frame.word[j]);
 			}
 		}
 
@@ -117,7 +109,10 @@ public class SteimFrameBlock {
 	 * @return integer value indicating number of frames
 	 */
 	public int getNumFrames () {
-		return numFrames;
+		if (maxNumFrames == 0) {
+			return steimFrameList.size();
+		}
+		return maxNumFrames;
 	}
 
 
@@ -131,20 +126,30 @@ public class SteimFrameBlock {
 	 * @return boolean indicating true if the block is full (ie: the
 	 * calling app should not add any more to this object)
 	 */
-	protected boolean addEncodedWord (int word, int samples, int nibble) {
-		int pos = steimFrame[currentFrame].pos; // word position
-		steimFrame[currentFrame].word[pos] = word; // add word
+	protected boolean addEncodedWord (int word, int samples, int nibble) throws SteimException {
+		if (currentSteimFrame == null) {
+			if (maxNumFrames > 0 && currentFrame >= maxNumFrames) {
+				throw new SteimException("Frame Block is full");
+			}
+			currentSteimFrame = new SteimFrame();
+			currentSteimFrame.pos = 1;
+			addEncodingNibble(0); // first nibble always 00
+			steimFrameList.add(currentSteimFrame);
+			currentFrame++;
+		}
+		int pos = currentSteimFrame.pos; // word position
+		currentSteimFrame.word[pos] = word; // add word
 		addEncodingNibble (nibble);                     // add nibble
 		numSamples += samples;
 		pos++;     // increment position in frame
 		if (pos > 15) {  // need next frame?
-			currentFrame++;
-			if (currentFrame >= numFrames) {  // exceeded frame limit?
+			currentSteimFrame = null;
+			if (maxNumFrames > 0 && currentFrame >= maxNumFrames-1) {  // exceeded frame limit?
 				return true;  // block is full
 			}
-			addEncodingNibble(0); // first nibble always 00
+		} else {
+			currentSteimFrame.pos = pos; // increment position in frame
 		}
-		steimFrame[currentFrame].pos++;  // increment position in frame
 		return false;  // block is not yet full
 	}
 
@@ -156,7 +161,7 @@ public class SteimFrameBlock {
 	 * @param word integer value to be placed in X(N)
 	 */
 	protected void setXsubN (int word) {
-		steimFrame[0].word[2] = word;
+		steimFrameList.get(0).word[2] = word;
 		return;
 	}
 
@@ -165,9 +170,9 @@ public class SteimFrameBlock {
 	* @param bitFlag a value 0 to 3 representing an encoding nibble
 	*/
 	private void addEncodingNibble (int bitFlag) {
-		int offset = steimFrame[currentFrame].pos; // W0 nibble offset - determines Cn in W0
+		int offset = currentSteimFrame.pos; // W0 nibble offset - determines Cn in W0
 		int shift = (15 - offset)*2;  // how much to shift bitFlag
-		steimFrame[currentFrame].word[0] |= (bitFlag << shift);
+		currentSteimFrame.word[0] |= (bitFlag << shift);
 		return;
 	}
 
@@ -190,9 +195,10 @@ public class SteimFrameBlock {
 
 	// *** instance variables ***
 
-	private int numFrames = 0;        // number of frames this object contains
+	private int maxNumFrames = 0;        // number of frames this object contains
 	private int numSamples = 0;      // number of samples represented
 	private int steimVersion = 0;    // Steim version number
-	private int currentFrame = 0;     // number of current frame being built
-	private SteimFrame[] steimFrame = null;  // array of frames;
+	private int currentFrame = -1;     // number of current frame being built, start before first (zero) index
+	private List<SteimFrame> steimFrameList = new ArrayList<>(); // list of frames, added as needed
+	SteimFrame currentSteimFrame = null; // current frame appending to, may be null if now frame needs to be created
 }
