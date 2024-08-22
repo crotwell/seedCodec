@@ -1,11 +1,10 @@
 plugins {
-    id("edu.sc.seis.version-class") version "1.2.2"
+    id("edu.sc.seis.version-class") version "1.3.0"
     // Apply the java-library plugin to add support for Java Library
     `java-library`
     `maven-publish`
     signing
-    eclipse
-    id("com.github.ben-manes.versions") version "0.47.0"
+    id("com.github.ben-manes.versions") version "0.51.0"
 }
 
 group = "edu.sc.seis"
@@ -78,10 +77,10 @@ repositories {
 dependencies {
 
     // Use JUnit Jupiter API for testing.
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.2")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.11.0")
 
     // Use JUnit Jupiter Engine for testing.
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.2")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.11.0")
 }
 
 tasks {
@@ -100,3 +99,16 @@ val test by tasks.getting(Test::class) {
     // Use junit platform for unit tests
     useJUnitPlatform()
 }
+
+
+tasks.named("sourcesJar") {
+    dependsOn("makeVersionClass")
+}
+
+tasks.register("versionToVersionFile") {
+  inputs.files("build.gradle.kts")
+  outputs.files("VERSION")
+  File("VERSION").writeText(""+version)
+}
+tasks.get("assemble").dependsOn("versionToVersionFile")
+
