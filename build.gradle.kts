@@ -2,6 +2,7 @@ plugins {
     id("edu.sc.seis.version-class") version "1.3.0"
     // Apply the java-library plugin to add support for Java Library
     `java-library`
+    `java-library-distribution`
     `maven-publish`
     signing
     id("com.github.ben-manes.versions") version "0.51.0"
@@ -15,6 +16,37 @@ java {
     targetCompatibility = JavaVersion.VERSION_1_8
     withJavadocJar()
     withSourcesJar()
+}
+
+
+tasks.register("versionToVersionFile") {
+  inputs.files("build.gradle.kts")
+  outputs.files("VERSION")
+  File("VERSION").writeText(""+version)
+}
+
+distributions {
+    main {
+        distributionBaseName = "seedCodec"
+	contents {
+	    from(tasks.named("javadoc")) {
+	        into("javadoc")
+	    }
+            from(tasks.named("versionToVersionFile")) {
+              into(".")
+            }
+            from(".") {
+                include("LICENSE")
+                include("README.md")
+                include("build.gradle.kts")
+                include("settings.gradle.kts")
+                include("src/**")
+                include("gradle/**")
+                include("gradlew")
+                include("gradlew.bat")
+            }
+        }
+    }
 }
 
 publishing {
@@ -103,12 +135,6 @@ val test by tasks.getting(Test::class) {
 
 tasks.named("sourcesJar") {
     dependsOn("makeVersionClass")
-}
-
-tasks.register("versionToVersionFile") {
-  inputs.files("build.gradle.kts")
-  outputs.files("VERSION")
-  File("VERSION").writeText(""+version)
 }
 tasks.get("assemble").dependsOn("versionToVersionFile")
 
