@@ -1,5 +1,10 @@
 [![Maven Central](https://img.shields.io/maven-central/v/edu.sc.seis/seedCodec.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22edu.sc.seis%22%20AND%20a:%22seedCodec%22)
 
+
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15440474.svg)](https://doi.org/10.5281/zenodo.15440474)
+
+
+
 [![javadoc](https://javadoc.io/badge2/edu.sc.seis/seedCodec/javadoc.svg)](https://javadoc.io/doc/edu.sc.seis/seedCodec) 
 
 SeedCodec is a collection of compression and decompression routines for standard seismic data formats in Java. The goal is to support all the formats available within seed, but submissions from the broader community are needed to accomplish this.
